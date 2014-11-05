@@ -1,5 +1,5 @@
 {
-	"name": "jan-j/php-eval-console",
+	"name": "meebio/php-eval-console",
 	"description": "Standalone php eval console. In-browser, standalone console that executes your code with eval and displays the produced output.",
 	"keywords": [
 		"browser",
