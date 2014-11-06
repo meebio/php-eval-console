@@ -5,7 +5,15 @@ namespace Meebio\PhpEvalConsole;
 class Console
 {
 
-    public $consoleStart;
+    /**
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * @var float
+     */
+    protected $consoleStart;
 
     /**
      * Array with error code => string pairs.
@@ -14,7 +22,7 @@ class Console
      *
      * @var array
      */
-    public static $error_map = array(
+    protected static $error_map = array(
         E_ERROR             => 'E_ERROR',
         E_WARNING           => 'E_WARNING',
         E_PARSE             => 'E_PARSE',
@@ -38,7 +46,7 @@ class Console
      *
      * @var array
      */
-    public $profile = array(
+    protected $profile = array(
         'queries'      => array(),
         'memory'       => 0,
         'memory_peak'  => 0,
@@ -50,19 +58,80 @@ class Console
         'error'        => false
     );
 
-    public function __construct()
+    /**
+     * @param array $config
+     */
+    public function __construct($config = array())
     {
         $this->consoleStart = microtime(true);
+        $this->loadConfig($config);
+        Helper::$templateDefaultDir = $this->getConfigItem('viewsPath');
+    }
+
+    protected function loadConfig($config = array())
+    {
+        $defaultConfigPath = __DIR__ . '/Config/config.php';
+        $defaultConfig = require $defaultConfigPath;
+        $this->config = array_merge($defaultConfig, $config);
+    }
+
+    protected function getConfig()
+    {
+        return $this->config;
+    }
+
+    protected function getConfigItem($key)
+    {
+        return array_key_exists($key, $this->config) ? $this->config[$key] : null;
+    }
+
+    public function boot($action = null)
+    {
+        if (is_null($action)) {
+            if ($this->detectMethod() === 'post') {
+                $this->execute();
+            } else {
+                $this->renderView();
+            }
+        } elseif ($action === 'console') {
+            $this->renderView();
+        } elseif ($action === 'execute') {
+            $this->execute();
+        }
+    }
+
+    protected function detectMethod()
+    {
+        return strtolower($_SERVER['REQUEST_METHOD']);
+    }
+
+    protected function getInput()
+    {
+        if (!isset($_POST['code']) || !is_string($_POST['code'])) {
+            throw new \Exception('Code not sent or invalid');
+        }
+
+        return $_POST['code'];
+    }
+
+    protected function renderView()
+    {
+        $consoleViewPath = $this->getConfigItem('consoleViewPath');
+
+        echo Helper::template($consoleViewPath, array(
+            'config' => $this->getConfig(),
+        ));
     }
 
     /**
      * Executes a code and returns current profile.
      *
-     * @param  string $code
      * @return array
      */
-    public function execute($code)
+    protected function execute()
     {
+        $code = $this->getInput();
+
         // Execute the code
         ob_start();
         $console_execute_start = microtime(true);
@@ -206,37 +275,4 @@ class Console
     //        }
     //    );
     //}
-
-    public function boot()
-    {
-        if ($this->detectMethod() === 'post') {
-            $this->executeCode();
-        } else {
-            $this->renderConsole();
-        }
-    }
-
-    protected function detectMethod()
-    {
-        return strtolower($_SERVER['REQUEST_METHOD']);
-    }
-
-    protected function getCode()
-    {
-        if (!isset($_POST['code']) || !is_string($_POST['code'])) {
-            throw new \Exception('Code not sent or invalid');
-        }
-
-        return $_POST['code'];
-    }
-
-    protected function renderConsole()
-    {
-        echo 'console get';
-    }
-
-    protected function executeCode()
-    {
-        echo 'command post: ' . $this->getCode();
-    }
 }
