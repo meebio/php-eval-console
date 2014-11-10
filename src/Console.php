@@ -73,6 +73,10 @@ class Console
         $defaultConfigPath = __DIR__ . '/Config/config.php';
         $defaultConfig = require $defaultConfigPath;
         $this->config = array_merge($defaultConfig, $config);
+
+        if (is_null($this->config['executeUrl'])) {
+            $this->config['executeUrl'] = $this->detectExecuteUrl();
+        }
     }
 
     protected function getConfig()
@@ -105,6 +109,11 @@ class Console
         return strtolower($_SERVER['REQUEST_METHOD']);
     }
 
+    protected function detectExecuteUrl()
+    {
+        return 'http'.(empty($_SERVER['HTTPS'])?'':'s').'://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+    }
+
     protected function getInput()
     {
         if (!isset($_POST['code']) || !is_string($_POST['code'])) {
@@ -123,10 +132,14 @@ class Console
         ));
     }
 
+    protected function returnJson($data)
+    {
+        echo json_encode($data);
+        exit;
+    }
+
     /**
      * Executes a code and returns current profile.
-     *
-     * @return array
      */
     protected function execute()
     {
@@ -154,7 +167,7 @@ class Console
             )
         );
 
-        return $this->getProfile();
+        $this->returnJson($this->getProfile());
     }
 
     /**
