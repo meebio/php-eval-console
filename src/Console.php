@@ -2,6 +2,8 @@
 
 namespace Meebio\PhpEvalConsole;
 
+use Meebio\PhpEvalConsole\Evaluators\EvaluatorInterface;
+
 class Console
 {
 
@@ -14,6 +16,11 @@ class Console
      * @var float
      */
     protected $consoleStart;
+
+    /**
+     * @var EvaluatorInterface;
+     */
+    protected $evaluator;
 
     /**
      * Array with error code => string pairs.
@@ -65,17 +72,20 @@ class Console
     {
         $this->consoleStart = microtime(true);
         $this->loadConfig($config);
-        Helper::$templateDefaultDir = $this->getConfigItem('viewsPath');
+        Helper::$templateDefaultDir = $this->getConfigItem('views_path');
+
+        $evaluatorClass = $this->getConfigItem('evaluator');
+        $this->evaluator = new $evaluatorClass;
     }
 
     protected function loadConfig($config = array())
     {
         $defaultConfigPath = __DIR__ . '/Config/config.php';
-        $defaultConfig = require $defaultConfigPath;
-        $this->config = array_merge($defaultConfig, $config);
+        $defaultConfig     = require $defaultConfigPath;
+        $this->config      = array_merge($defaultConfig, $config);
 
-        if (is_null($this->config['executeUrl'])) {
-            $this->config['executeUrl'] = $this->detectExecuteUrl();
+        if (is_null($this->config['execute_url'])) {
+            $this->config['execute_url'] = $this->detectExecuteUrl();
         }
     }
 
@@ -111,7 +121,10 @@ class Console
 
     protected function detectExecuteUrl()
     {
-        return 'http'.(empty($_SERVER['HTTPS'])?'':'s').'://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+        return 'http'
+            . (empty($_SERVER['HTTPS']) ? '' : 's')
+            . '://' . $_SERVER['SERVER_NAME']
+            . $_SERVER['REQUEST_URI'];
     }
 
     protected function getInput()
@@ -125,11 +138,14 @@ class Console
 
     protected function renderView()
     {
-        $consoleViewPath = $this->getConfigItem('consoleViewPath');
+        $consoleViewPath = $this->getConfigItem('console_view_path');
 
-        echo Helper::template($consoleViewPath, array(
-            'config' => $this->getConfig(),
-        ));
+        echo Helper::template(
+            $consoleViewPath,
+            array(
+                'config' => $this->getConfig(),
+            )
+        );
     }
 
     protected function returnJson($data)
@@ -143,25 +159,18 @@ class Console
      */
     protected function execute()
     {
-        $code = $this->getInput();
 
-        // Execute the code
-        ob_start();
-        $console_execute_start = microtime(true);
-        $estatus               = @eval($code);
-        $console_execute_end   = microtime(true);
-        $output                = ob_get_contents();
-        ob_end_clean();
-
-        // When error occurred, add it to profile.
-        if ($estatus === false) {
-            $this->addProfile('error', error_get_last());
+        if (!$this->evaluator->evaluate($this->getInput())) {
+            foreach ($this->evaluator->getErrors() as $error) {
+                $this->addProfile('error', $error);
+            }
         }
+        $output = $this->evaluator->getOutput();
 
         // Extend the profile
         $this->addProfile(
             array(
-                'time'        => round(($console_execute_end - $console_execute_start) * 1000),
+                'time'        => round($this->evaluator->getExecutionTime() * 1000),
                 'output'      => $output,
                 'output_size' => strlen($output)
             )

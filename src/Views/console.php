@@ -1,6 +1,6 @@
 <?php echo \Meebio\PhpEvalConsole\Helper::template('partials/head'); ?>
 
-<div id="console" class="console" data-action="<?php echo $config['executeUrl']; ?>">
+<div id="console" class="console" data-action="<?php echo $config['execute_url']; ?>">
 	<ul id="response" class="response">
 	</ul>
 
