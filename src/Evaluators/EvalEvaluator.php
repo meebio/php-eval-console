@@ -12,12 +12,19 @@ class EvalEvaluator implements EvaluatorInterface
     /**
      * @var array
      */
-    protected $errors = [];
+    protected $errors = array();
 
     /**
      * @var float
      */
     protected $executionTime = 0;
+
+    protected function reset()
+    {
+        $this->output = null;
+        $this->errors = array();
+        $this->executionTime = 0;
+    }
 
     /**
      * @param string $code
@@ -25,6 +32,8 @@ class EvalEvaluator implements EvaluatorInterface
      */
     public function evaluate($code)
     {
+        $this->reset();
+
         try {
             ob_start();
 

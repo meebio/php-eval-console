@@ -74,8 +74,12 @@ class Console
         $this->loadConfig($config);
         Helper::$templateDefaultDir = $this->getConfigItem('views_path');
 
-        $evaluatorClass = $this->getConfigItem('evaluator');
-        $this->evaluator = new $evaluatorClass;
+        $evaluator = $this->getConfigItem('evaluator');
+        if (! ($evaluator instanceof EvaluatorInterface)) {
+            throw new \InvalidArgumentException('Evaluator must implement EvaluatorInterface');
+        }
+
+        $this->evaluator = $evaluator;
     }
 
     protected function loadConfig($config = array())
