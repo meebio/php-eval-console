@@ -1,20 +1,28 @@
 {
     "name": "meebio/php-eval-console",
+    "type": "library",
     "description": "Standalone php eval console. In-browser, standalone console that executes your code with eval and displays the produced output.",
     "keywords": [
-        "browser",
         "eval",
-        "console"
+        "console",
+        "debug",
+        "debugging",
+        "sandbox"
     ],
+    "homepage": "https://github.com/Meebio/php-eval-console",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Jan Jablonski",
+            "email": "jablonski.kce@gmail.com"
+        }
+    ],
     "require": {
-        "php": ">=5.3.0",
-        "illuminate/support": ">=4.0.0"
+        "php": ">=5.3.0"
     },
     "autoload": {
         "psr-4": {
             "Meebio\\PhpEvalConsole\\": "src/"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
