@@ -144,12 +144,9 @@ class Console
     {
         $consoleViewPath = $this->getConfigItem('console_view_path');
 
-        echo Helper::template(
-            $consoleViewPath,
-            array(
-                'config' => $this->getConfig(),
-            )
-        );
+        Helper::$sharedTemplateVars['config'] = $this->getConfig();
+
+        echo Helper::template($consoleViewPath);
     }
 
     protected function returnJson($data)

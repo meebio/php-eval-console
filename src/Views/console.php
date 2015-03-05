@@ -1,4 +1,4 @@
-<?php echo \Meebio\PhpEvalConsole\Helper::template('partials/head'); ?>
+<?php echo Meebio\PhpEvalConsole\Helper::template('partials/head'); ?>
 
 <div id="console" class="console" data-action="<?php echo $config['execute_url']; ?>">
     <ul id="response" class="response">
@@ -15,5 +15,5 @@
     </section>
 </div>
 
-<?php echo \Meebio\PhpEvalConsole\Helper::template('partials/templates'); ?>
-<?php echo \Meebio\PhpEvalConsole\Helper::template('partials/foot'); ?>
+<?php echo Meebio\PhpEvalConsole\Helper::template('partials/templates'); ?>
+<?php echo Meebio\PhpEvalConsole\Helper::template('partials/foot'); ?>

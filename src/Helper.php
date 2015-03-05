@@ -11,6 +11,11 @@ class Helper
     public static $templateDefaultDir;
 
     /**
+     * @var array
+     */
+    public static $sharedTemplateVars = array();
+
+    /**
      * Micro template evaluation function
      *
      * @param string $templateFile
@@ -42,6 +47,7 @@ class Helper
             throw new \InvalidArgumentException('Template file not exists or not readable');
         }
 
+        extract(static::$sharedTemplateVars);
         extract($vars);
 
         ob_start();
