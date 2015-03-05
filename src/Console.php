@@ -75,7 +75,7 @@ class Console
         Helper::$templateDefaultDir = $this->getConfigItem('views_path');
 
         $evaluator = $this->getConfigItem('evaluator');
-        if (! ($evaluator instanceof EvaluatorInterface)) {
+        if (!($evaluator instanceof EvaluatorInterface)) {
             throw new \InvalidArgumentException('Evaluator must implement EvaluatorInterface');
         }
 
@@ -126,9 +126,9 @@ class Console
     protected function detectExecuteUrl()
     {
         return 'http'
-            . (empty($_SERVER['HTTPS']) ? '' : 's')
-            . '://' . $_SERVER['SERVER_NAME']
-            . $_SERVER['REQUEST_URI'];
+        . (empty($_SERVER['HTTPS']) ? '' : 's')
+        . '://' . $_SERVER['SERVER_NAME']
+        . $_SERVER['REQUEST_URI'];
     }
 
     protected function getInput()

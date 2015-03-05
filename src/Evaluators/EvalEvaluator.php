@@ -21,8 +21,8 @@ class EvalEvaluator implements EvaluatorInterface
 
     protected function reset()
     {
-        $this->output = null;
-        $this->errors = array();
+        $this->output        = null;
+        $this->errors        = array();
         $this->executionTime = 0;
     }
 
@@ -37,9 +37,9 @@ class EvalEvaluator implements EvaluatorInterface
         try {
             ob_start();
 
-            $executionStart      = microtime(true);
-            $success             = @eval($code);
-            $executionEnd        = microtime(true);
+            $executionStart = microtime(true);
+            $success        = @eval($code);
+            $executionEnd   = microtime(true);
 
             $this->executionTime = $executionEnd - $executionStart;
             $this->output        = ob_get_contents();
@@ -50,12 +50,14 @@ class EvalEvaluator implements EvaluatorInterface
                 $this->addError(error_get_last());
             }
         } catch (\Exception $e) {
-            $this->addError(array(
-                'type' => get_class($e),
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ));
+            $this->addError(
+                array(
+                    'type'    => get_class($e),
+                    'message' => $e->getMessage(),
+                    'file'    => $e->getFile(),
+                    'line'    => $e->getLine(),
+                )
+            );
             $success = false;
         }
 
