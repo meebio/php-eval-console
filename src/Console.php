@@ -29,7 +29,7 @@ class Console
      *
      * @var array
      */
-    protected static $error_map = array(
+    protected static $errorMap = [
         E_ERROR             => 'E_ERROR',
         E_WARNING           => 'E_WARNING',
         E_PARSE             => 'E_PARSE',
@@ -46,15 +46,15 @@ class Console
         E_DEPRECATED        => 'E_DEPRECATED',
         E_USER_DEPRECATED   => 'E_USER_DEPRECATED',
         E_ALL               => 'E_ALL',
-    );
+    ];
 
     /**
      * Execution profile.
      *
      * @var array
      */
-    protected $profile = array(
-        'queries'      => array(),
+    protected $profile = [
+        'queries'      => [],
         'memory'       => 0,
         'memory_peak'  => 0,
         'time'         => 0,
@@ -63,12 +63,12 @@ class Console
         'output'       => '',
         'output_size'  => 0,
         'error'        => false
-    );
+    ];
 
     /**
      * @param array $config
      */
-    public function __construct($config = array())
+    public function __construct($config = [])
     {
         $this->consoleStart = microtime(true);
         $this->loadConfig($config);
@@ -82,7 +82,7 @@ class Console
         $this->evaluator = $evaluator;
     }
 
-    protected function loadConfig($config = array())
+    protected function loadConfig($config = [])
     {
         $defaultConfigPath = __DIR__ . '/Config/config.php';
         $defaultConfig     = require $defaultConfigPath;
@@ -156,7 +156,7 @@ class Console
     }
 
     /**
-     * Executes a code and returns current profile.
+     * Execute code and returns current profile.
      */
     protected function execute()
     {
@@ -170,25 +170,29 @@ class Console
 
         // Extend the profile
         $this->addProfile(
-            array(
+            [
                 'time'        => round($this->evaluator->getExecutionTime() * 1000),
                 'output'      => $output,
                 'output_size' => strlen($output)
-            )
+            ]
         );
+
+        if ($this->getConfigItem('queries_callback')) {
+            $this->addProfile('queries', $this->getConfigItem('queries_callback'));
+        }
 
         $this->returnJson($this->getProfile());
     }
 
     /**
-     * Adds one or multiple fields into profile.
+     * Add one or multiple fields into profile.
      *
      * @param mixed $property Property name, or an array of name => value pairs.
      * @param mixed $value Property value.
      */
     public function addProfile($property, $value = null)
     {
-        if (gettype($property) === 'array') {
+        if (is_array($property)) {
             foreach ($property as $key => $value) {
                 $this->addProfile($key, $value);
             }
@@ -196,51 +200,52 @@ class Console
         }
 
         // Normalize properties
-        $normalizer_name = 'normalize' . ucfirst($property);
-        if (method_exists($this, $normalizer_name)) {
-            $value = call_user_func(array($this, $normalizer_name), $value);
+        $normalizerName = 'normalize' . ucfirst($property);
+        if (method_exists($this, $normalizerName)) {
+            $value = call_user_func([$this, $normalizerName], $value);
         }
 
         $this->profile[$property] = $value;
     }
 
     /**
-     * Returns current profile.
+     * Return current profile.
      *
      * @return array
      */
     public function getProfile()
     {
         // Total execution time by queries
-        $time_queries = 0;
-        foreach ($this->profile['queries'] as $query) {
-            $time_queries += $query['time'];
+        $timeQueries = 0;
+        foreach ($this->profile['queries'] as $k => $query) {
+            $timeQueries += $query['time'];
+            $this->profile['queries'][$k]['time'] = round($query['time'], 3);
         }
 
         // Extend the profile with current data
         static::addProfile(
-            array(
+            [
                 'memory'       => memory_get_usage(true),
                 'memory_peak'  => memory_get_peak_usage(true),
-                'time_queries' => round($time_queries),
+                'time_queries' => round($timeQueries, 3),
                 'time_total'   => round((microtime(true) - $this->consoleStart) * 1000),
-            )
+            ]
         );
 
         return $this->profile;
     }
 
     /**
-     * Normalizes error profile.
+     * Normalize error profile.
      *
      * @param mixed $error Error object or array.
      * @return array Normalized error array.
      */
-    public function normalizeError($error)
+    protected function normalizeError($error)
     {
         // Set human readable error type
-        if (isset($error['type']) and isset(static::$error_map[$error['type']])) {
-            $error['type'] = static::$error_map[$error['type']];
+        if (isset($error['type']) and isset(static::$errorMap[$error['type']])) {
+            $error['type'] = static::$errorMap[$error['type']];
         }
 
         // Validate and return the error
@@ -251,51 +256,20 @@ class Console
         }
     }
 
-    ///**
-    // * Processes a Laravel query event to profile executed queries.
-    // *
-    // * @param  string $sql
-    // * @param  array $bindings
-    // * @param  int $time
-    // */
-    //public static function query($sql, $bindings, $time)
-    //{
-    //    foreach ($bindings as $binding) {
-    //        // Sometimes, object $binding is passed, and needs to be stringified
-    //        if (gettype($binding) == 'object') {
-    //            $class_name = get_class($binding);
-    //            switch ($class_name) {
-    //                case 'DateTime':
-    //                    $binding = $binding->format('Y-m-d H:i:s e');
-    //                    break;
-    //
-    //                default:
-    //                    $binding = '(object)' . $class_name;
-    //            }
-    //        }
-    //
-    //        $binding = DB::connection()->getPdo()->quote($binding);
-    //
-    //        $sql = preg_replace('/\?/', $binding, $sql, 1);
-    //        $sql = htmlspecialchars(htmlspecialchars_decode($sql));
-    //    }
-    //
-    //    static::$profile['queries'][] = array(
-    //        'query' => $sql,
-    //        'time'  => $time
-    //    );
-    //}
+    /**
+     * Normalize queries.
+     *
+     * @param mixed $queriesCallback
+     * @return array
+     */
+    protected function normalizeQueries($queriesCallback)
+    {
+        $queries = array();
 
-    ///**
-    // * Attaches Laravel event listeners.
-    // */
-    //public static function attach()
-    //{
-    //    Event::listen(
-    //        'illuminate.query',
-    //        function ($sql, $bindings, $time) {
-    //            Console::query($sql, $bindings, $time);
-    //        }
-    //    );
-    //}
+        if (is_callable($queriesCallback)) {
+            $queries = $queriesCallback();
+        }
+
+        return $queries;
+    }
 }

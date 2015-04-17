@@ -38,7 +38,7 @@ class EvalEvaluator implements EvaluatorInterface
             ob_start();
 
             $executionStart = microtime(true);
-            $success        = @eval($code);
+            $success        = eval($code);
             $executionEnd   = microtime(true);
 
             $this->executionTime = $executionEnd - $executionStart;

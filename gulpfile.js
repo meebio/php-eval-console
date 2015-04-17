@@ -9,9 +9,10 @@ var debug = require('gulp-debug');
 var paths = {
     cssSrc: [
         'src/Resources/css/normalize.css',
-        'src/Resources/css/main.css',
+        'src/Resources/css/boilerplate.css',
         'src/Resources/css/codemirror.css',
-        'src/Resources/css/laravel.css'
+        'src/Resources/css/laravel.css',
+        'src/Resources/css/main.css'
     ],
     cssDest: 'public/css',
     jsSrc: [
@@ -39,7 +40,7 @@ gulp.task('js', function () {
     return gulp.src(paths.jsSrc)
         .pipe(concat('script.js'))
         .pipe(gulp.dest(paths.jsDest))
-        //.pick(uglify()) // disabled due errors for now
+        .pipe(uglify())
         .pipe(rename('script.min.js'))
         .pipe(gulp.dest(paths.jsDest))
 });

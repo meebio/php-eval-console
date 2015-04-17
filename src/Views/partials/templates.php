@@ -11,7 +11,7 @@
         <em>none</em>
         {{ } }}
     </li>
-    <li class="execution help" title="Script execution / Laravel total">
+    <li class="execution help" title="Code execution / Application total">
         <span class="title">Execution:</span>
 		<span class="time">{{=time}}<span class="divider">/</span>{{=time_total}}
 		<span class="muted">ms</span></span>
