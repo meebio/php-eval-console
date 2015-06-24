@@ -2,7 +2,9 @@
 
 namespace Meebio\PhpEvalConsole\Evaluators;
 
-class EvalEvaluator implements EvaluatorInterface
+use PHPSandbox\PHPSandbox;
+
+class PhpSandboxEvaluator implements EvaluatorInterface
 {
 
     /**
@@ -20,6 +22,22 @@ class EvalEvaluator implements EvaluatorInterface
      */
     protected $executionTime = 0;
 
+    /**
+     * @var PHPSandbox
+     */
+    protected $sandbox;
+
+    public function __construct(PHPSandbox $sandbox = null)
+    {
+        if (is_null($sandbox)) {
+            $sandbox = new PHPSandbox;
+        }
+
+        $sandbox->capture_output = true;
+
+        $this->sandbox = $sandbox;
+    }
+
     protected function reset()
     {
         $this->output        = null;
@@ -36,19 +54,13 @@ class EvalEvaluator implements EvaluatorInterface
         $this->reset();
 
         try {
-            ob_start();
 
-            $executionStart = microtime(true);
-            $success        = eval($code);
-            $executionEnd   = microtime(true);
+            $this->output        = $this->sandbox->execute($code);
+            $this->executionTime = $this->sandbox->execution_time;
+            $success             = true;
 
-            $this->executionTime = $executionEnd - $executionStart;
-            $this->output        = ob_get_contents();
-
-            ob_end_clean();
-
-            if (!is_null(error_get_last())) {
-                $this->addError(error_get_last());
+            if (!is_null($this->sandbox->get_last_error())) {
+                $this->addError($this->sandbox->get_last_error());
             }
         } catch (\Exception $e) {
             $this->addError(
