@@ -38,8 +38,17 @@ class EvalEvaluator implements EvaluatorInterface
         try {
             ob_start();
 
+            $evalClosure = function () use ($code) {
+                return eval($code);
+            };
+
+            // unbind this if closure method bindTo exists
+            if (method_exists($evalClosure, 'bindTo')) {
+                $evalClosure = $evalClosure->bindTo(null);
+            }
+
             $executionStart = microtime(true);
-            $success        = eval($code);
+            $success        = $evalClosure();
             $executionEnd   = microtime(true);
 
             $this->executionTime = $executionEnd - $executionStart;
