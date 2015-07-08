@@ -2,35 +2,9 @@
 
 namespace Meebio\PhpEvalConsole\Evaluators;
 
-class EvalEvaluator implements EvaluatorInterface
+class EvalEvaluator extends Evaluator
 {
 
-    /**
-     * @var mixed
-     */
-    protected $output;
-
-    /**
-     * @var array
-     */
-    protected $errors = array();
-
-    /**
-     * @var float
-     */
-    protected $executionTime = 0;
-
-    protected function reset()
-    {
-        $this->output        = null;
-        $this->errors        = array();
-        $this->executionTime = 0;
-    }
-
-    /**
-     * @param string $code
-     * @return bool
-     */
     public function evaluate($code)
     {
         $this->reset();
@@ -48,8 +22,9 @@ class EvalEvaluator implements EvaluatorInterface
             }
 
             $executionStart = microtime(true);
-            $success        = $evalClosure();
+            $returnValue    = $evalClosure();
             $executionEnd   = microtime(true);
+            $success        = true;
 
             $this->executionTime = $executionEnd - $executionStart;
             $this->output        = ob_get_contents();
@@ -72,34 +47,5 @@ class EvalEvaluator implements EvaluatorInterface
         }
 
         return $success;
-    }
-
-    /**
-     * @return array
-     */
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOutput()
-    {
-        return $this->output;
-    }
-
-    /**
-     * @return float
-     */
-    public function getExecutionTime()
-    {
-        return $this->executionTime;
-    }
-
-    protected function addError($error)
-    {
-        $this->errors[] = $error;
     }
 }

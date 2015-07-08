@@ -4,29 +4,17 @@ namespace Meebio\PhpEvalConsole\Evaluators;
 
 use PHPSandbox\PHPSandbox;
 
-class PhpSandboxEvaluator implements EvaluatorInterface
+class PhpSandboxEvaluator extends Evaluator
 {
-
-    /**
-     * @var mixed
-     */
-    protected $output;
-
-    /**
-     * @var array
-     */
-    protected $errors = array();
-
-    /**
-     * @var float
-     */
-    protected $executionTime = 0;
 
     /**
      * @var PHPSandbox
      */
     protected $sandbox;
 
+    /**
+     * @param PHPSandbox|null $sandbox
+     */
     public function __construct(PHPSandbox $sandbox = null)
     {
         if (is_null($sandbox)) {
@@ -38,17 +26,6 @@ class PhpSandboxEvaluator implements EvaluatorInterface
         $this->sandbox = $sandbox;
     }
 
-    protected function reset()
-    {
-        $this->output        = null;
-        $this->errors        = array();
-        $this->executionTime = 0;
-    }
-
-    /**
-     * @param string $code
-     * @return bool
-     */
     public function evaluate($code)
     {
         $this->reset();
@@ -75,34 +52,5 @@ class PhpSandboxEvaluator implements EvaluatorInterface
         }
 
         return $success;
-    }
-
-    /**
-     * @return array
-     */
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOutput()
-    {
-        return $this->output;
-    }
-
-    /**
-     * @return float
-     */
-    public function getExecutionTime()
-    {
-        return $this->executionTime;
-    }
-
-    protected function addError($error)
-    {
-        $this->errors[] = $error;
     }
 }
