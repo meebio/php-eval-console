@@ -2,6 +2,7 @@
 
 namespace Meebio\PhpEvalConsole;
 
+use Meebio\PhpEvalConsole\Evaluators\EvalEvaluator;
 use Meebio\PhpEvalConsole\Evaluators\EvaluatorInterface;
 
 class Console
@@ -62,7 +63,7 @@ class Console
         'time_total'   => 0,
         'output'       => '',
         'output_size'  => 0,
-        'error'        => false
+        'error'        => false,
     ];
 
     /**
@@ -82,27 +83,53 @@ class Console
         $this->evaluator = $evaluator;
     }
 
+    /**
+     * @return array
+     */
+    protected function getDefaultConfig()
+    {
+        return array(
+            'assets_url'        => '../public',
+            'views_path'        => __DIR__ . '/Views',
+            'console_view_path' => __DIR__ . '/Views/console.php',
+            'execute_url'       => null,
+            'evaluator'         => new EvalEvaluator(),
+            'queries_callback'  => null,
+        );
+    }
+
     protected function loadConfig($config = [])
     {
-        $defaultConfigPath = __DIR__ . '/Config/config.php';
-        $defaultConfig     = require $defaultConfigPath;
-        $this->config      = array_merge($defaultConfig, $config);
+        $this->config = array_merge($this->getDefaultConfig(), $config);
 
         if (is_null($this->config['execute_url'])) {
             $this->config['execute_url'] = $this->detectExecuteUrl();
         }
     }
 
+    /**
+     * @return array
+     */
     protected function getConfig()
     {
         return $this->config;
     }
 
+    /**
+     * @param $key
+     * @return mixed
+     */
     protected function getConfigItem($key)
     {
         return array_key_exists($key, $this->config) ? $this->config[$key] : null;
     }
 
+    /**
+     * Start application. Parameter $action indicates if application page should be rendered or code executed.
+     * Keeping $action null will make application to guess which action to call.
+     *
+     * @param string|null $action
+     */
     public function boot($action = null)
     {
         if (is_null($action)) {
@@ -118,29 +145,18 @@ class Console
         }
     }
 
+    /**
+     * @return string
+     */
     protected function detectMethod()
     {
         return strtolower($_SERVER['REQUEST_METHOD']);
     }
 
-    protected function detectExecuteUrl()
-    {
-        return 'http'
-        . (empty($_SERVER['HTTPS']) ? '' : 's')
-        . '://' . $_SERVER['SERVER_NAME']
-        . $_SERVER['REQUEST_URI'];
-    }
-
-    protected function getInput()
-    {
-        if (!isset($_POST['code']) || !is_string($_POST['code'])) {
-            throw new \Exception('Code not sent or invalid');
-        }
-
-        return $_POST['code'];
-    }
-
-    protected function renderView()
+    /**
+     * Render application page.
+     */
+    public function renderView()
     {
         $consoleViewPath = $this->getConfigItem('console_view_path');
 
@@ -149,16 +165,10 @@ class Console
         echo Helper::template($consoleViewPath);
     }
 
-    protected function returnJson($data)
-    {
-        echo json_encode($data);
-        exit;
-    }
-
     /**
-     * Execute code and returns current profile.
+     * Execute code and return current profile.
      */
-    protected function execute()
+    public function execute()
     {
 
         if (!$this->evaluator->evaluate($this->getInput())) {
@@ -173,7 +183,7 @@ class Console
             [
                 'time'        => round($this->evaluator->getExecutionTime() * 1000),
                 'output'      => $output,
-                'output_size' => strlen($output)
+                'output_size' => strlen($output),
             ]
         );
 
@@ -185,12 +195,42 @@ class Console
     }
 
     /**
+     * @return string
+     */
+    protected function detectExecuteUrl()
+    {
+        return 'http'
+        . (empty($_SERVER['HTTPS']) ? '' : 's')
+        . '://' . $_SERVER['SERVER_NAME']
+        . $_SERVER['REQUEST_URI'];
+    }
+
+    /**
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    protected function getInput()
+    {
+        if (!isset($_POST['code']) || !is_string($_POST['code'])) {
+            throw new \InvalidArgumentException('Code not sent or invalid');
+        }
+
+        return $_POST['code'];
+    }
+
+    protected function returnJson($data)
+    {
+        echo json_encode($data);
+        exit;
+    }
+
+    /**
      * Add one or multiple fields into profile.
      *
      * @param mixed $property Property name, or an array of name => value pairs.
      * @param mixed $value Property value.
      */
-    public function addProfile($property, $value = null)
+    protected function addProfile($property, $value = null)
     {
         if (is_array($property)) {
             foreach ($property as $key => $value) {
@@ -213,7 +253,7 @@ class Console
      *
      * @return array
      */
-    public function getProfile()
+    protected function getProfile()
     {
         // Total execution time by queries
         $timeQueries = 0;
@@ -223,7 +263,7 @@ class Console
         }
 
         // Extend the profile with current data
-        static::addProfile(
+        $this->addProfile(
             [
                 'memory'       => memory_get_usage(true),
                 'memory_peak'  => memory_get_peak_usage(true),
