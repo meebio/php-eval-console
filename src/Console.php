@@ -30,7 +30,7 @@ class Console
      *
      * @var array
      */
-    protected static $errorMap = [
+    protected static $errorMap = array(
         E_ERROR             => 'E_ERROR',
         E_WARNING           => 'E_WARNING',
         E_PARSE             => 'E_PARSE',
@@ -47,15 +47,15 @@ class Console
         E_DEPRECATED        => 'E_DEPRECATED',
         E_USER_DEPRECATED   => 'E_USER_DEPRECATED',
         E_ALL               => 'E_ALL',
-    ];
+    );
 
     /**
      * Execution profile.
      *
      * @var array
      */
-    protected $profile = [
-        'queries'      => [],
+    protected $profile = array(
+        'queries'      => array(),
         'memory'       => 0,
         'memory_peak'  => 0,
         'time'         => 0,
@@ -64,12 +64,12 @@ class Console
         'output'       => '',
         'output_size'  => 0,
         'error'        => false,
-    ];
+    );
 
     /**
      * @param array $config
      */
-    public function __construct($config = [])
+    public function __construct($config = array())
     {
         $this->consoleStart = microtime(true);
         $this->loadConfig($config);
@@ -98,7 +98,7 @@ class Console
         );
     }
 
-    protected function loadConfig($config = [])
+    protected function loadConfig($config = array())
     {
         $this->config = array_merge($this->getDefaultConfig(), $config);
 
@@ -180,11 +180,11 @@ class Console
 
         // Extend the profile
         $this->addProfile(
-            [
+            array(
                 'time'        => round($this->evaluator->getExecutionTime() * 1000),
                 'output'      => $output,
                 'output_size' => strlen($output),
-            ]
+            )
         );
 
         if ($this->getConfigItem('queries_callback')) {
