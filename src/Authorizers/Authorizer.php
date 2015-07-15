@@ -7,7 +7,8 @@ abstract class Authorizer implements AuthorizerInterface
 
     public function renderError()
     {
-        header('HTTP/1.0 401 Unauthorized', true, 404);
+        header('HTTP/1.0 401 Unauthorized', true, 401);
+        echo '401 Unauthorized';
         exit(1);
     }
 }

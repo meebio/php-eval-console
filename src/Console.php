@@ -2,8 +2,11 @@
 
 namespace Meebio\PhpEvalConsole;
 
+use Meebio\PhpEvalConsole\Authorizers\AuthorizerInterface;
+use Meebio\PhpEvalConsole\Authorizers\IpAuthorizer;
 use Meebio\PhpEvalConsole\Evaluators\EvalEvaluator;
 use Meebio\PhpEvalConsole\Evaluators\EvaluatorInterface;
+use InvalidArgumentException;
 
 class Console
 {
@@ -22,6 +25,11 @@ class Console
      * @var EvaluatorInterface;
      */
     protected $evaluator;
+
+    /**
+     * @var AuthorizerInterface[];
+     */
+    protected $authorizers;
 
     /**
      * Array with error code => string pairs.
@@ -77,10 +85,20 @@ class Console
 
         $evaluator = $this->getConfigItem('evaluator');
         if (!($evaluator instanceof EvaluatorInterface)) {
-            throw new \InvalidArgumentException('Evaluator must implement EvaluatorInterface');
+            throw new InvalidArgumentException('Evaluator must implement EvaluatorInterface');
         }
-
         $this->evaluator = $evaluator;
+
+        $authorizers = $this->getConfigItem('authorizer');
+        if (!is_null($authorizers) && !is_array($authorizers)) {
+            $authorizers = array($authorizers);
+        }
+        foreach ($authorizers as $authorizer) {
+            if (!($authorizer instanceof AuthorizerInterface)) {
+                throw new InvalidArgumentException('Authorizer must implement AuthorizerInterface');
+            }
+        }
+        $this->authorizers = $authorizers;
     }
 
     /**
@@ -94,6 +112,7 @@ class Console
             'console_view_path' => __DIR__ . '/Views/console.php',
             'execute_url'       => null,
             'evaluator'         => new EvalEvaluator(),
+            'authorizer'        => new IpAuthorizer(array('::1', '127.0.0.1')),
             'queries_callback'  => null,
         );
     }
@@ -122,6 +141,15 @@ class Console
     protected function getConfigItem($key)
     {
         return array_key_exists($key, $this->config) ? $this->config[$key] : null;
+    }
+
+    protected function authorize()
+    {
+        foreach ($this->authorizers as $authorizer) {
+            if (!$authorizer->isAuthorized()) {
+                $authorizer->renderError();
+            }
+        }
     }
 
     /**
@@ -158,6 +186,8 @@ class Console
      */
     public function renderView()
     {
+        $this->authorize();
+
         $consoleViewPath = $this->getConfigItem('console_view_path');
 
         Helper::$sharedTemplateVars['config'] = $this->getConfig();
@@ -170,6 +200,7 @@ class Console
      */
     public function execute()
     {
+        $this->authorize();
 
         if (!$this->evaluator->evaluate($this->getInput())) {
             foreach ($this->evaluator->getErrors() as $error) {
@@ -207,12 +238,12 @@ class Console
 
     /**
      * @return string
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function getInput()
     {
         if (!isset($_POST['code']) || !is_string($_POST['code'])) {
-            throw new \InvalidArgumentException('Code not sent or invalid');
+            throw new InvalidArgumentException('Code not sent or invalid');
         }
 
         return $_POST['code'];
