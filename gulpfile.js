@@ -14,17 +14,17 @@ var paths = {
         'src/Resources/css/laravel.css',
         'src/Resources/css/main.css'
     ],
-    cssDest: 'public/css',
+    cssDest: 'assets/css',
     jsSrc: [
         'src/Resources/js/vendor/jquery.js',
         'src/Resources/js/vendor/plugins.js',
         'src/Resources/js/vendor/codemirror.js',
         'src/Resources/js/main.js'
     ],
-    jsDest: 'public/js',
+    jsDest: 'assets/js',
     modernizrSrc: 'src/Resources/js/vendor/modernizr.js',
     imgSrc: 'src/Resources/img/*',
-    imgDest: 'public/img'
+    imgDest: 'assets/img'
 };
 
 gulp.task('css', function () {

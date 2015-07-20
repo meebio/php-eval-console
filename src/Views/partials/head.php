@@ -6,8 +6,8 @@
         <title>PHP Eval Console</title>
         <meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="<?php echo $config['assets_url']; ?>/css/style.min.css" />
-        <script type="text/javascript" src="<?php echo $config['assets_url']; ?>/js/modernizr.js"></script>
+        <link rel="stylesheet" href="<?php echo $config['assets_dir']; ?>/css/style.min.css" />
+        <script type="text/javascript" src="<?php echo $config['assets_dir']; ?>/js/modernizr.js"></script>
 
     </head>
     <body>

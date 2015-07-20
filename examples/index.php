@@ -4,4 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Meebio\PhpEvalConsole\Console;
 
-(new Console())->boot();
+$console = new Console(array(
+    'assets_dir' => '../assets',
+));
+$console->boot();
