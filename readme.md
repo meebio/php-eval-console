@@ -15,15 +15,15 @@ In-browser, standalone console that executes your PHP code and returns the produ
 
 ## Installation
 
-* Get package through composer:
+Get package through composer:
 
 ```bash
 composer require meebio/php-eval-console
 ```
 
-* Copy `vendor/meebio/php-eval-console/assets` to `assets` in project root directory.
+Copy `vendor/meebio/php-eval-console/assets` to `assets` in project root directory.
 
-* Create `index.php` in project root directory with following content:
+Create `index.php` in project root directory with following content:
  
 ```php
 <?php
@@ -36,7 +36,7 @@ $console = new Console();
 $console->boot();
 ```
 
-* Open index.php page in browser.
+Open index.php page in browser.
 
 ## Configuration
 
@@ -52,17 +52,17 @@ queries_callback | null\|closure | Callback that will return database queries to
 
 ## Evaluators
 
-* EvalEvaluator
+#### EvalEvaluator
 
 Basic evaluator that uses `eval` command. This is entirely not secure.
 
-* PhpSandboxEvaluator
+#### PhpSandboxEvaluator
 
 More advanced php evaluator that make use of [fieryprophet/php-sandbox](https://github.com/fieryprophet/php-sandbox) package. This sandbox class utilizes [PHP-Parser](https://github.com/nikic/PHP-Parser) to prevent sandboxed code from running unsafe code. If configured properly this evaluator could probably allow application be exposed to public users. To use this evaluator require `fieryprophet/php-sandbox` package in composer.
 
 ## Authorizers
 
-* IpAuthorizer
+#### IpAuthorizer
 
 This authorizer ensures that only access from provided ips is possible. Authorizer constructor takes to arguments first is array of allowed ips (null if this check should be disabled) and second is array of disallowed ips (null if this check should be disabled).
 
