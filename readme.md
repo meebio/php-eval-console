@@ -11,6 +11,7 @@ In-browser, standalone console that executes your PHP code and returns the produ
 * [Configuration](#configuration)
 * [Evaluators](#evaluators)
 * [Authorizers](#authorizers)
+* [Queries callback](#queries-callback)
 
 ## Installation
 
@@ -47,7 +48,37 @@ console_view_path | string | Absolute path to main view. Modify only if you want
 execute_url | string\|null | URL to application execute route. If null set it is guessed. | null
 evaluator | `EvaluatorInterface` | Instance of EvaluatorInterface implementation that will be used for running code. | `EvalEvaluator`
 authorizer  | null\|`AuthorizerInterface` | Instance of AuthorizerInterface implementation that will be used for running code. This option also accepts null or array of authorizers. | `IpAuthorizer`
-queries_callback | null\|callback | Callback that will return database queries to display after running code. | null
+queries_callback | null\|closure | Callback that will return database queries to display after running code. | null
 
 ## Evaluators
+
+* EvalEvaluator
+
+Basic evaluator that uses `eval` command. This is entirely not secure.
+
+* PhpSandboxEvaluator
+
+More advanced php evaluator that make use of [fieryprophet/php-sandbox](https://github.com/fieryprophet/php-sandbox) package. This sandbox class utilizes [PHP-Parser](https://github.com/nikic/PHP-Parser) to prevent sandboxed code from running unsafe code. If configured properly this evaluator could probably allow application be exposed to public users. To use this evaluator require `fieryprophet/php-sandbox` package in composer.
+
 ## Authorizers
+
+* IpAuthorizer
+
+This authorizer ensures that only access from provided ips is possible. Authorizer constructor takes to arguments first is array of allowed ips (null if this check should be disabled) and second is array of disallowed ips (null if this check should be disabled).
+
+## Queries callback
+
+Closure that will provide array of queries after code evaluation. Returned data should be in following format:
+
+```php
+array(
+    array(
+        'query' => 'SELECT * FROM `users`;',
+        'time'  => 0.113,
+    ),
+    array(
+        'query' => 'SELECT * FROM `posts` JOIN `category` ON `post`.`category_id` = `category`.`id`;',
+        'time'  => 0.231,
+    ),
+);
+```
