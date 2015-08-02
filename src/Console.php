@@ -273,7 +273,7 @@ class Console
         // Normalize properties
         $normalizerName = 'normalize' . ucfirst($property);
         if (method_exists($this, $normalizerName)) {
-            $value = call_user_func([$this, $normalizerName], $value);
+            $value = call_user_func(array($this, $normalizerName), $value);
         }
 
         $this->profile[$property] = $value;
@@ -295,12 +295,12 @@ class Console
 
         // Extend the profile with current data
         $this->addProfile(
-            [
+            array(
                 'memory'       => memory_get_usage(true),
                 'memory_peak'  => memory_get_peak_usage(true),
                 'time_queries' => round($timeQueries, 3),
                 'time_total'   => round((microtime(true) - $this->consoleStart) * 1000),
-            ]
+            )
         );
 
         return $this->profile;
