@@ -82,3 +82,8 @@ array(
     ),
 );
 ```
+
+## TODO
+
+- Improve errors handling.
+- Create Laravel 5 provider for easier integration.
