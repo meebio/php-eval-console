@@ -90,7 +90,9 @@ class Console
         $this->evaluator = $evaluator;
 
         $authorizers = $this->getConfigItem('authorizer');
-        if (!is_null($authorizers) && !is_array($authorizers)) {
+        if (is_null($authorizers)) {
+            $authorizers = array();
+        } elseif(!is_array($authorizers)) {
             $authorizers = array($authorizers);
         }
         foreach ($authorizers as $authorizer) {
