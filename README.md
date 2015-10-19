@@ -24,7 +24,7 @@ composer require meebio/php-eval-console
 Copy `vendor/meebio/php-eval-console/assets` to `assets` in project root directory.
 
 Create `index.php` in project root directory with following content:
- 
+
 ```php
 <?php
 
@@ -49,7 +49,8 @@ execute_url | string\|null | URL to application execute route. If null set it is
 evaluator | `EvaluatorInterface` | Instance of EvaluatorInterface implementation that will be used for running code. | `EvalEvaluator`
 authorizer  | null\|`AuthorizerInterface` | Instance of AuthorizerInterface implementation that will be used for running code. This option also accepts null or array of authorizers. | `IpAuthorizer`
 queries_callback | null\|closure | Callback that will return database queries to display after running code. | null
-
+post_execute_callback | null\|closure | Post execute callback. Can be used to perform some actions after code evaluation, but before returning result. | null
+     *
 ## Evaluators
 
 #### EvalEvaluator
@@ -58,7 +59,7 @@ Basic evaluator that uses `eval` command. This is entirely not secure.
 
 #### PhpSandboxEvaluator
 
-More advanced php evaluator that make use of [fieryprophet/php-sandbox](https://github.com/fieryprophet/php-sandbox) package. This sandbox class utilizes [PHP-Parser](https://github.com/nikic/PHP-Parser) to prevent sandboxed code from running unsafe code. If configured properly this evaluator could probably allow application be exposed to public users. To use this evaluator require `fieryprophet/php-sandbox` package in composer.
+More advanced php evaluator that make use of [fieryprophet/php-sandbox](https://github.com/fieryprophet/php-sandbox) package. This sandbox class utilizes [PHP-Parser](https://github.com/nikic/PHP-Parser) to prevent sandboxed code from running unsafe code. If configured properly this evaluator could probably allow application to be exposed to public users. To use this evaluator require `fieryprophet/php-sandbox` package in composer.
 
 ## Authorizers
 

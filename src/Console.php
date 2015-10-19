@@ -107,13 +107,14 @@ class Console
     protected function getDefaultConfig()
     {
         return array(
-            'assets_dir'        => 'assets',
-            'views_path'        => __DIR__ . '/Views',
-            'console_view_path' => __DIR__ . '/Views/console.php',
-            'execute_url'       => null,
-            'evaluator'         => new EvalEvaluator(),
-            'authorizer'        => new IpAuthorizer(array('::1', '127.0.0.1')),
-            'queries_callback'  => null,
+            'assets_dir'            => 'assets',
+            'views_path'            => __DIR__ . '/Views',
+            'console_view_path'     => __DIR__ . '/Views/console.php',
+            'execute_url'           => null,
+            'evaluator'             => new EvalEvaluator(),
+            'authorizer'            => new IpAuthorizer(array('::1', '127.0.0.1')),
+            'queries_callback'      => null,
+            'post_execute_callback' => null,
         );
     }
 
@@ -221,6 +222,8 @@ class Console
         if ($this->getConfigItem('queries_callback')) {
             $this->addProfile('queries', $this->getConfigItem('queries_callback'));
         }
+
+        $this->postExecuteCallback($this->getConfigItem('post_execute_callback'));
 
         $this->returnJson($this->getProfile());
     }
@@ -330,7 +333,7 @@ class Console
     /**
      * Normalize queries.
      *
-     * @param mixed $queriesCallback
+     * @param callback|null $queriesCallback
      * @return array
      */
     protected function normalizeQueries($queriesCallback)
@@ -342,5 +345,18 @@ class Console
         }
 
         return $queries;
+    }
+
+    /**
+     * Execute post execute callback.
+     * Can be used to perform some actions after code evaluation, but before returning result.
+     *
+     * @param callback|null $postExecuteCallback
+     */
+    protected function postExecuteCallback($postExecuteCallback)
+    {
+        if (is_callable($postExecuteCallback)) {
+            $postExecuteCallback();
+        }
     }
 }
