@@ -50,7 +50,7 @@ evaluator | `EvaluatorInterface` | Instance of EvaluatorInterface implementation
 authorizer  | null\|`AuthorizerInterface` | Instance of AuthorizerInterface implementation that will be used for running code. This option also accepts null or array of authorizers. | `IpAuthorizer`
 queries_callback | null\|closure | Callback that will return database queries to display after running code. | null
 post_execute_callback | null\|closure | Post execute callback. Can be used to perform some actions after code evaluation, but before returning result. | null
-     *
+
 ## Evaluators
 
 #### EvalEvaluator
