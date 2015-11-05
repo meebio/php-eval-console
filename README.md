@@ -1,7 +1,8 @@
 PHP Eval Console
 ================
 
-In-browser, standalone console that executes your PHP code and returns the produced output. This package is based on package [darsain/laravel-console](https://github.com/darsain/laravel-console).
+In-browser, standalone console that executes your PHP code and returns the produced output. This package is based on
+ package [darsain/laravel-console](https://github.com/darsain/laravel-console).
 
 ![Screenshot](http://i.imgur.com/ryXpkvc.png)
 
@@ -12,6 +13,7 @@ In-browser, standalone console that executes your PHP code and returns the produ
 * [Evaluators](#evaluators)
 * [Authorizers](#authorizers)
 * [Queries callback](#queries-callback)
+* [Laravel support](#laravel-support)
 
 ## Installation
 
@@ -59,13 +61,18 @@ Basic evaluator that uses `eval` command. This is entirely not secure.
 
 #### PhpSandboxEvaluator
 
-More advanced php evaluator that make use of [fieryprophet/php-sandbox](https://github.com/fieryprophet/php-sandbox) package. This sandbox class utilizes [PHP-Parser](https://github.com/nikic/PHP-Parser) to prevent sandboxed code from running unsafe code. If configured properly this evaluator could probably allow application to be exposed to public users. To use this evaluator require `fieryprophet/php-sandbox` package in composer.
+More advanced php evaluator that make use of [fieryprophet/php-sandbox](https://github.com/fieryprophet/php-sandbox)
+ package. This sandbox class utilizes [PHP-Parser](https://github.com/nikic/PHP-Parser) to prevent sandboxed code from
+ running unsafe code. If configured properly this evaluator could probably allow application to be exposed to public
+ users. To use this evaluator require `fieryprophet/php-sandbox` package in composer.
 
 ## Authorizers
 
 #### IpAuthorizer
 
-This authorizer ensures that only access from provided ips is possible. Authorizer constructor takes to arguments first is array of allowed ips (null if this check should be disabled) and second is array of disallowed ips (null if this check should be disabled).
+This authorizer ensures that only access from provided ips is possible. Authorizer constructor takes to arguments first
+ is array of allowed ips (null if this check should be disabled) and second is array of disallowed ips (null if this
+ check should be disabled).
 
 ## Queries callback
 
@@ -84,7 +91,60 @@ array(
 );
 ```
 
+## Laravel support
+
+You should install the package through Composer:
+
+```bash
+composer require meebio/php-eval-console
+```
+
+You must add service provider to app config:
+
+```php
+'providers' => [
+    ...
+    Meebio\PhpEvalConsole\Providers\PhpEvalConsoleLaravelServiceProvider::class,
+    ...
+];
+```
+
+You can publish package assets through artisan command:
+
+```bash
+php artisan vendor:publish --provider="Meebio\PhpEvalConsole\Providers\PhpEvalConsoleLaravelServiceProvider"
+```
+
+or just copy directory `vendor/meebio/php-eval-console/assets` to `public/vendor/php-eval-console`.
+
+Last thing that should be done is to make sure CSRF Protection is not blocking console post requests.
+ To do that in Laravel 5.1 you should add console URI to be excluded in VerifyCsrfToken class. So it looks something
+ like this:
+ 
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
+
+class VerifyCsrfToken extends BaseVerifier
+{
+    /**
+     * The URIs that should be excluded from CSRF verification.
+     *
+     * @var array
+     */
+    protected $except = [
+        'console',
+    ];
+}
+```
+
+For lower versions of Laravel, that can be done as well, but some manual method overriding is needed.
+
+When everything is done you should see Console at `/console` uri.
+
 ## TODO
 
 - Improve errors handling.
-- Create Laravel 5 provider for easier integration.
