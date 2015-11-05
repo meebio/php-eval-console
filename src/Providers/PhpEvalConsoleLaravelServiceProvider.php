@@ -32,7 +32,7 @@ class PhpEvalConsoleLaravelServiceProvider extends ServiceProvider
         $this->app['db']->connection()->enableQueryLog();
 
         $this->publishes([
-            __DIR__ . '/../../assets' => public_path('vendor/console'),
+            __DIR__ . '/../../assets' => public_path('vendor/php-eval-console'),
         ], 'public');
 
         if (!$this->app->routesAreCached()) {
@@ -64,7 +64,7 @@ class PhpEvalConsoleLaravelServiceProvider extends ServiceProvider
     protected function consoleConfig()
     {
         return [
-            'assets_dir'       => asset('vendor/console'),
+            'assets_dir'       => asset('vendor/php-eval-console'),
             'execute_url'      => route('phpEvalConsole.execute'),
             'evaluator'        => new EvalEvaluator(),
             'authorizer'       => new IpAuthorizer(['::1', '127.0.0.1']),
